@@ -80,17 +80,24 @@ class _Engine(object):
 
 
 def create_engine(user, passwd, database, host='127.0.0.1', port=3306, **kw):
-    import mysql.connector
+    try:
+        from  mysql.connector import connect
+        params = dict(user=user, password=passwd, database=database, host=host, port=port)
+        defaults = dict(use_unicode=True, charset='utf8', collation='utf8_general_ci', autocommit=False)
+        params['buffered'] = True
+    except ImportError:
+        from MySQLdb import connect
+        params = dict(user=user, passwd=passwd, db=database, host=host, port=int(port))
+        defaults = dict(use_unicode=True, charset='utf8')
+
     global engine
     if engine is not None:
         raise DBError('Engine is already initialized.')
-    params = dict(user=user, password=passwd, database=database, host=host, port=port)
-    defaults = dict(use_unicode=True, charset='utf8', collation='utf8_general_ci', autocommit=False)
     for k, v in defaults.iteritems():
         params[k] = kw.pop(k, v)
     params.update(kw)
-    params['buffered'] = True
-    engine = _Engine(lambda: mysql.connector.connect(**params))
+    logging.info("config user: %s, passwd= %s, database= %s, host= %s,port= %s" %(user, passwd, database, host, port))
+    engine = _Engine(lambda: connect(**params))
     # test connection...
     logging.info('Init mysql engine <%s> ok.' % hex(id(engine)))
 
