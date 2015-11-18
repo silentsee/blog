@@ -51,6 +51,13 @@ if __name__ == "__main__":
 else:
     import sae
     import sae.const
+    import os
+    import sys
+
+    root = os.path.dirname(__file__)
+
+    # 两者取其一
+    sys.path.insert(0, os.path.join(root, 'site-packages'))
     db.create_engine(user=sae.const.MYSQL_USER, passwd=sae.const.MYSQL_PASS, database=sae.const.MYSQL_DB, port=int(sae.const.MYSQL_PORT), host=sae.const.MYSQL_HOST)
     application = sae.create_wsgi_app(wsgi.get_wsgi_application())
 
